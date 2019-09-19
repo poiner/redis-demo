@@ -1,0 +1,62 @@
+server:
+  port: 9099
+  servlet:
+    context-path: /redis-demo
+
+spring:
+  profiles:
+    active: development-mysql
+  redis:
+    host: 192.168.31.210
+    port: 6379
+    password: matech.2019
+  kafka:
+    bootstrap-servers: 192.168.0.5:9092
+    consumer:
+      group-id: test-consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+matech:
+  framework:
+    snowflake:
+      idc: 1
+      machine: 1
+
+---
+spring:
+  profiles: development-mysql
+  datasource:
+    name: MYDB
+    #schema: classpath:/sql/schema-mysql.sql
+    #data: classpath:/sql/data-mysql.sql
+    sql-script-encoding: utf-8
+    driver-class-name:   com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.31.81:13306/workflow?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&useServerPrepStmts=false&rewriteBatchedStatements=true&useSSL=false
+    username: icm
+    password: icm!2#4%6
+
+    tomcat:
+      max-active: 5
+      max-idle: 3
+      min-idle: 1
+      initial-size: 2
+      validation-query: select 1
+      test-on-borrow: true
+      test-on-return: false
+      time-between-eviction-runs-millis: 600000
+      min-evictable-idle-time-millis: 300000
+  jpa:
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update # Hibernate ddl auto (none, create, create-drop, update, validate)
+    properties:
+      #      hibernate.dialect: org.hibernate.dialect.MySQL5Dialect
+      hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect    #默认使用innodb引擎
+      hibernate.format_sql: true
+      hibernate.max_fetch_depth: 1
+      hibernate.generate_statistics: false
+      hibernate.use_sql_comments: true

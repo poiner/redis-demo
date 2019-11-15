@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.github.wenhao</groupId>
             <artifactId>jpa-spec</artifactId>
-            <version>3.2.5</version>
+            <version>3.2.3</version>
         </dependency>
 
         <dependency>

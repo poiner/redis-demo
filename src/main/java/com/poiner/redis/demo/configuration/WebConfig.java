@@ -1,5 +1,7 @@
 package com.poiner.redis.demo.configuration;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poiner.redis.demo.config.RedisConfig;
 import com.poiner.redis.demo.spring.json.ObjectMapperFactory;
@@ -7,13 +9,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
@@ -42,12 +47,23 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    @Primary
-    public Jedis jedis(RedisConfig redisConfig) {
-        Jedis jedis = new Jedis(redisConfig.getHost(), redisConfig.getPort());
-        jedis.auth(redisConfig.getPassword());
+    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
 
-        return jedis;
+        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        //使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值
+        Jackson2JsonRedisSerializer<Object> redisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+
+        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+        redisSerializer.setObjectMapper(objectMapper);
+        template.setValueSerializer(redisSerializer);
+
+        //使用StringRedisSerializer来序列化和反序列化redis的key值
+        template.setKeySerializer(new StringRedisSerializer());
+        template.afterPropertiesSet();
+
+        return template;
     }
 
     @Bean

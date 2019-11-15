@@ -1,7 +1,7 @@
 package com.poiner.redis.demo.service;
 
 import com.github.wenhao.jpa.Specifications;
-import com.poiner.redis.demo.aspect.RedisLockAnnoation;
+import com.poiner.redis.demo.aspect.RedisLockAnnotation;
 import com.poiner.redis.demo.entity.Hero;
 import com.poiner.redis.demo.exception.NoSuchDataException;
 import com.poiner.redis.demo.mapper.HeroMapper;
@@ -61,7 +61,7 @@ public class HeroServiceImpl implements HeroService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     @Caching(put = @CachePut(cacheNames = "hero", key = "#result.id + '_hero'", unless = "#result eq null "), evict = {@CacheEvict(cacheNames = {"heroes"}, allEntries = true)})
-    @RedisLockAnnoation(keyPrefix = "method_hero_", keys = {"update"})
+    @RedisLockAnnotation(keyPrefix = "method_hero_", keys = {"update"})
     public HeroDTO update(String id, HeroEditInfoDTO editInfo) {
         Optional<Hero> heroOptional = heroRepository.findById(Long.valueOf(id));
         Hero hero = heroOptional.orElseThrow(() -> new NoSuchDataException(id));
